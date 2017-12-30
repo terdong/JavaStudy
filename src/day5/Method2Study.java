@@ -12,6 +12,7 @@ public class Method2Study {
 
         System.out.print("addType4() = ");
         addType4();
+
     }
 
     // 리턴 타입과, 매개 변수가 둘 다 있는 메소드
