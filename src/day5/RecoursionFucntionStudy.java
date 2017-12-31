@@ -8,8 +8,6 @@ public class RecoursionFucntionStudy {
         int count = 100;
 
         printMessage("안녕?", isPlay, count);
-
-
     }
 
     public static void printMessage(String message, boolean isPlay, int count){
