@@ -3,7 +3,7 @@ package day8_fishbreadtycoon;
 public class Test00 {
     public static void main(String[] args) {
 
-        Customer c = new Customer(100, null);
+        Customer c = new Customer("손님",100, null);
 
         FishBread fishBread = new FishBread(3);
 

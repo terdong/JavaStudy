@@ -7,11 +7,11 @@ public class Test01{
 
         Random random = new Random();
 
-        FishBreadMachine fbm = new FishBreadMachine();
+        FishBreadMachine fbm = new FishBreadMachine(random);
         FishBreadCEO ceo = new FishBreadCEO(fbm);
 
         int initialMoney = (random.nextInt(10)) + 1 * 1000;
-        Customer customer = new Customer(initialMoney, ceo);
+        Customer customer = new Customer("손님",initialMoney, ceo);
         customer.orderFishBread();
 
     }
