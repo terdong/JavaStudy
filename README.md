@@ -1,4 +1,4 @@
-# JavaStudy
+# JavaStudyForAcademyStudent
 
 SBS 광주아카데미학원에서 2017년 12월 15일부터 시작한 Java 프로그래밍 과정 실습자료.
 
