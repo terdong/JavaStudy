@@ -16,6 +16,7 @@ public class PolymorphismStudy1 {
         animal.shakeTail();
     }
 
+
     static void runMethodsByDog(Dog dog){
         dog.bark();
         dog.eat();
@@ -24,6 +25,9 @@ public class PolymorphismStudy1 {
     public static void main(String[] args) {
 
         Cat cat = new Cat();
+
+
+        Cat cat1 = cat;
 
         // 굳이 PolymorphismStudy1.runMethods 로 호출 하지 않아도
         // 같은 PolymorphismStudy1 클래스 안에 정의된 static 메소드는

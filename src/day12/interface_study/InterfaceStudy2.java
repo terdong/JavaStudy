@@ -5,9 +5,9 @@ public class InterfaceStudy2 {
     static void runMethods(Animal animal){
         runMethodsByAnimal(animal);
         boolean isCorrect = animal instanceof Pet;
-        if(isCorrect){
+        //if(isCorrect){
             runMethodsByPet((Pet)animal);
-        }
+        //}
     }
 
     static void runMethodsByPet(Pet pet) {
@@ -28,6 +28,10 @@ public class InterfaceStudy2 {
         // 같은 PolymorphismStudy1 클래스 안에 정의된 static 메소드는
         // 메소드 이름만으로 호출 가능합니다.
         runMethods(cat);
+
+
+        Tiger tiger = new Tiger();
+        runMethods(tiger);
 
         System.out.println();
 
