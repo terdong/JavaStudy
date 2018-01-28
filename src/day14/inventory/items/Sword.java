@@ -1,13 +1,16 @@
 package day14.inventory.items;
 
+import day14.inventory.Player;
+
 public class Sword extends Item implements IWeapon{
     public Sword(String name, int value, int price) {
         super(name, value, price);
     }
 
     @Override
-    public void use() {
+    public boolean use(Player player) {
         System.out.println("아무일도 일어나지 않았다.");
+        return false;
     }
 
     @Override

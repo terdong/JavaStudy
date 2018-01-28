@@ -17,12 +17,17 @@ public abstract class Item {
     }
 
     // 아이템을 인벤토리에서 사용할 때 호출하는 메소드
-    abstract public void use();
+    // 아이템을 사용하게 할 플레이어를 매개변수로 받음
+    // 아이템이 제대로 사용 되었다면 true를 반환하고, 아니면 false 반환
+    abstract public boolean use(Player player);
 
-    public void sell(Player player){
+    // 아이템을 판매할 때 호출되는 메소드
+    public boolean sell(Player player){
         player.increaseMoney(price);
+        return true;
     }
 
+    // 아이템의 이름을 반환하는 메소드
     public String getItemName(){
         return name;
     }
