@@ -37,6 +37,7 @@ public class MiniChatServer {
             createServerSocket(port);
 
             for (; isWork; ) {
+                initialize();
                 System.out.println("클라이언트 접속을 기다리는 중입니다.");
                 accept();
                 openStream();
@@ -44,7 +45,7 @@ public class MiniChatServer {
                 isConnecting = true;
                 for(;isConnecting;) {
                     receive();
-                    sendClient();
+                    sendClient(clientProtocol);
                 }
 
                 closeStream();
@@ -75,10 +76,14 @@ public class MiniChatServer {
         }
     }
 
-    private void sendClient() throws IOException {
-        String message = clientProtocol.getMessage();
-        if(message.equals("/exit") || message.equals("/quit") || message.equals("/종료")){
+    private void sendClient(Protocol protocol) throws IOException {
+        String message = protocol.getMessage();
+        if(message == null || message.isEmpty()){
+            serverProtocol.setMessage(String.format("%s야 반가워^^", protocol.getName()));
+        }
+        else if(message.equals("/exit") || message.equals("/quit") || message.equals("/종료")){
             isConnecting = false;
+            serverProtocol.setDisconnect(true);
             serverProtocol.setMessage("그동안 즐거웠어. 이 말들은 내 본심이 아니야. 미안 ㅃㅃ");
         }else{
             serverProtocol.setMessage(getReply(message));
@@ -109,5 +114,9 @@ public class MiniChatServer {
             reply = "먹을만큼 먹었다. 왜?";
         }
         return reply;
+    }
+
+    private void initialize(){
+        serverProtocol.setDisconnect(false);
     }
 }

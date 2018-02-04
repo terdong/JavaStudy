@@ -2,10 +2,7 @@ package day16.client;
 
 import day16.protocol.Protocol;
 
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -19,7 +16,7 @@ public class MiniChatClient {
 
     private boolean isPlay;
 
-    private Protocol protocol;
+    private Protocol clientProtocol;
 
     public MiniChatClient() {
         scanner = new Scanner(System.in);
@@ -27,19 +24,20 @@ public class MiniChatClient {
 
     public void start() {
         System.out.print("채팅에 사용할 닉네임을 정해주세요.\n입력: ");
-        protocol = new Protocol("동희");
+//        clientProtocol = new Protocol(scanner.nextLine());
+        clientProtocol = new Protocol("동희");
 
         try {
             createSocket();
+
             System.out.println("서버 접속에 성공했습니다.");
 
             openStream();
 
             isPlay = true;
-            for(;isPlay;) {
+            for (; isPlay; ) {
                 sendMessage();
                 receive();
-
             }
             closeStream();
 
@@ -57,40 +55,57 @@ public class MiniChatClient {
 
     private void sendMessage() throws IOException {
 
-        System.out.print("메세지 입력: ");
-        String message = scanner.nextLine();
-        Protocol protocol = new Protocol("동희");
-        protocol.setMessage(message);
+        boolean isEmptyMessage = true;
+        for (; isEmptyMessage; ) {
+            System.out.print("메세지 입력: ");
+            String message = scanner.nextLine();
+            clientProtocol.setMessage(message);
 
+            isEmptyMessage = clientProtocol.isEmptyMessage();
 
-        outputStream.writeObject(protocol);
-        outputStream.reset();
-        outputStream.flush();
-
-        if(message.equals("/exit") || message.equals("/quit") || message.equals("/종료")){
-            isPlay = false;
+            if(isEmptyMessage) {
+                System.out.println("* 메시지를 입력해주세요.");
+            }
         }
+
+        writeObject(clientProtocol);
+
     }
 
     private void receive() throws IOException, ClassNotFoundException {
-        inputStream = new ObjectInputStream(socket.getInputStream());
         Object object = inputStream.readObject();
         if (object != null) {
-            Protocol protocol = (Protocol)object;
+            Protocol protocol = (Protocol) object;
             System.out.println(protocol);
-        }
-        inputStream.close();
 
+            isPlay = !protocol.isDisconnect();
+        }
     }
 
-    private void openStream() throws IOException {
+    /**
+     * outputStream과 inputStream 객체를 연속으로 생성해 줄 경우 왠지 모르게 교착상태(모르면 검색해보세요)에 빠진다.
+     * 그래서 outputStream 객체 생성 후 writeObject 메소드를 사용해서 데이터 전송을 한번 한 후 inputStream 객체를 생성한다.
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    private void openStream() throws IOException, ClassNotFoundException {
         outputStream = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+        writeObject(clientProtocol);
+
+        inputStream = new ObjectInputStream(socket.getInputStream());
+        receive();
 
     }
 
     private void closeStream() throws IOException {
         outputStream.close();
         inputStream.close();
+    }
+
+    private void writeObject(Protocol protocol) throws IOException {
+        outputStream.writeObject(protocol);
+        outputStream.reset();
+        outputStream.flush();
     }
 
 }
