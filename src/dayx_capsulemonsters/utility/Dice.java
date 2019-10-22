@@ -6,22 +6,19 @@ import java.util.Random;
  * Created by DongHee Kim on 2018-01-22 022.
  */
 public class Dice {
-    private Random random;
-    private int diceNumber = 6;
+    private int diceNumber;
+    private int diceRollingCount;
 
-    public Dice(Random random) {
-        this.random = random;
+    public Dice(int diceNumber, int diceRollingCount) {
+        this.diceNumber = diceNumber;
+        this.diceRollingCount = diceRollingCount;
     }
 
-    public void setDiceNumber(int number) {
-        this.diceNumber = number;
+    public int getDiceNumber() {
+        return diceNumber;
     }
 
-    public int rollDice() {
-        return random.nextInt(diceNumber) + 1;
-    }
-
-    public int rollDice(int count) {
-        return count > 1 ? rollDice() + rollDice(count - 1) : rollDice();
+    public int getDiceRollingCount() {
+        return diceRollingCount;
     }
 }

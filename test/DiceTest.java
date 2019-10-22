@@ -7,8 +7,8 @@ import java.util.Random;
  */
 public class DiceTest {
     public static void main(String[] args) {
-        Dice dice = new Dice(new Random());
+        //Dice dice = new Dice(new Random());
 
-        System.out.println(dice.rollDice(6));
+        //System.out.println(dice.rollDice(6));
     }
 }

@@ -17,7 +17,7 @@ public class World {
     public static final int BLOCK_STATUS_POTAL = 5;
     //private static final int BLOCK_STATUS_MUD= 1; // 밟으면 (다음 주사위 합 / 2)
     //private static final int BLOCK_STATUS_DICE = 2; // 밟으면 주사위 눈개수 3 ~ 8 사이로 변경
-    private static final char [] BLOCK_DISPLAY_ARRAY = {'.','g','m','B','P','@'};
+    private static final char [] BLOCK_DISPLAY_ARRAY = {'.','P','g','m','B','@'};
 
     private Random random;
 

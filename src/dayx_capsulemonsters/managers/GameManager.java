@@ -4,7 +4,6 @@ import dayx_capsulemonsters.maps.World;
 import dayx_capsulemonsters.monsters.Monster;
 import dayx_capsulemonsters.player.Player;
 import dayx_capsulemonsters.skills.Skill;
-import dayx_capsulemonsters.utility.Dice;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -18,10 +17,11 @@ import static dayx_capsulemonsters.utility.Messages.*;
 public class GameManager {
 
     private Player player;
-    private HashMap<String, Monster> monsterHashMap;
     private HashMap<String, Skill> skillHashMap;
     private World world;
-    private Dice dice;
+    private DiceManager diceManager;
+    private MonsterManager monsterManager;
+    private ItemManager itemManager;
     private Random random;
 
     private int currentPlayerPositionIndex = 0;
@@ -32,7 +32,9 @@ public class GameManager {
     public GameManager() {
 
         random = new Random();
-        dice = new Dice(random);
+        diceManager = new DiceManager(random);
+        itemManager = new ItemManager(random);
+        monsterManager = new MonsterManager(random, itemManager);
         world = new World(random);
 
         initialize();
@@ -40,12 +42,9 @@ public class GameManager {
     }
 
     private void initialize() {
-        if(monsterHashMap == null){
+/*        if( skillHashMap == null){
             monsterHashMap = new HashMap<>();
-        }
-        if( skillHashMap == null){
-            monsterHashMap = new HashMap<>();
-        }
+        }*/
 
         world.initializeMap();
 
@@ -80,6 +79,12 @@ public class GameManager {
 
     private void play() {
 
+        System.out.println();
+        world.printMapInfo();
+
+        System.out.println(GAME_PLAY_MENU);
+        checkCommand(getCommandNumber());
+
         if(world.isEncounter()){
             switch (world.getEncounterNumber()){
                 case 2:
@@ -88,9 +93,7 @@ public class GameManager {
                     System.out.printf("골드를 +%d 만큼 획득 했습니다. (현재 총 %d골드 소지)\n", increaseGold, player.getGold());
                     break;
                 case 3:
-                    System.out.println("몬스터와 조우했습니다. 화난 몬스터는 무작정 당신에게 달려듭니다.");
-                    System.out.println("전투 시작!");
-
+                    battleMonster();
                     break;
                 case 4:
                     break;
@@ -99,24 +102,106 @@ public class GameManager {
             }
         }
 
-        System.out.println();
-        world.printMapInfo();
+    }
 
-        System.out.println(GAME_PLAY_MENU);
+    private int getCommandNumber(){
         System.out.print(INPUT);
         int commandNumber = scanner.nextInt();
         System.out.println();
-        checkCommand(commandNumber);
+        return commandNumber;
+    }
 
+    private void battleMonster(){
+
+        Monster monster = null;
+        try {
+            monster = monsterManager.getRandomMonster();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            System.out.println("몬스터 생성에 문제가 생겨 스킵합니다.");
+            return;
+        }
+        System.out.printf("%s이(가) 나타났다!. 잔뜩 화가난 %s은(는) 무작정 당신에게 달려듭니다.\n",monster.getName(), monster.getName());
+        System.out.println("전투를 시작합니다.");
+        boolean isBattle = true;
+        String monsterName = monster.getName();
+        for(;isBattle;) {
+            System.out.println();
+
+            // 플레이어 정보
+            player.printUnitInfo();
+            // 몬스터 정보
+            monster.printUnitInfo();
+
+            // 플레이어 패배 체크
+            if(player.isDead()){
+                isPlay = false;
+                isBattle = false;
+                System.out.println();
+                System.out.println("몬스터와의 전투에서 패배했습니다.");
+                System.out.println("마계로 떨어진 플레이어는 결국 탈출을 못하고 이곳에서 생을 마감했습니다.");
+                System.out.println("################################## GAME OVER ########################################");
+                System.out.println("#####################################################################################");
+            }
+            // 몬스터 패배 체크
+            else if(monster.isDead()){
+                isBattle = false;
+                System.out.println();
+                System.out.println("몬스터와의 전투에서 승리했습니다.");
+                System.out.println("#####################################################################################");
+
+                // 전리품 획득
+
+
+            }
+
+            System.out.println();
+
+            if(isBattle) {
+                // 플레이어 턴
+                System.out.println("#####################################################################################");
+                System.out.println("# [플레이어 턴] 전투메뉴: 1. 공격, 2. 크리티컬 공격(실패 확률 60%)");
+                int commandNumber = getCommandNumber();
+
+                int damage = 0;
+                switch (commandNumber) {
+                    case 1:
+                        damage = diceManager.rollDice(player.getDiceForBattle());
+                        System.out.printf("# %s에게 %d 만큼의 피해를 주었습니다.\n", monsterName, damage);
+                        monster.getDamage(damage);
+                        break;
+                    case 2:
+                        if(random.nextInt(10) < 4){
+                            damage = diceManager.rollDice(player.getDiceForBattle()) * 2;
+                            System.out.printf("# %s에게 %d 만큼의 크리티컬 피해를 주었습니다.\n", monsterName, damage);
+                            monster.getDamage(damage);
+                        }else
+                        {
+                            System.out.println("크리티컬 공격에 실패 했습니다.");
+                        }
+                        break;
+                }
+                System.out.println("#####################################################################################");
+
+
+                // 몬스터 턴
+                System.out.println();
+                System.out.println("#####################################################################################");
+                System.out.println("# [몬스터 턴] ");
+                damage = diceManager.rollDice(monster.getDiceForBattle());
+                System.out.printf("# %s은(는) 플레이어에게 %d 만큼의 피해를 주었습니다.\n", monsterName, damage);
+                player.getDamage(damage);
+                System.out.println("#####################################################################################");
+            }
+        }
     }
 
     private void checkCommand(int commandNumber) {
         // 1. 이동, 2. 보유 몬스터 정보, 3. 플레이어 정보, 4. 상점, 5. 도움말, 6. 게임 종료
         switch (commandNumber) {
             case 1:
-                System.out.println("이동하기 위해 주사위를 굴립니다.");
-                int moveCount = dice.rollDice();
-                System.out.printf("%d칸 이동합니다.\n", moveCount);
+                int moveCount = diceManager.rollDice(player.getDiceForMove());
+                System.out.printf("이동하기 위해 주사위를 굴립니다. %d이 나왔습니다.\n%d칸 이동합니다.\n", moveCount, moveCount);
                 world.movePlayer(moveCount);
                 break;
             case 2:
